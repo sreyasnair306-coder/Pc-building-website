@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BuildMyPC</title>
+
+<style>
+:root {
+  --bg: #0f172a;
+  --card: #020617;
+  --text: #e5e7eb;
+  --accent: #38bdf8;
+}
+
+.light {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #020617;
+  --accent: #0284c7;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+header {
+  background: var(--card);
+  padding: 20px;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.toggle {
+  border: none;
+  background: var(--accent);
+  color: #000;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+.card {
+  background: var(--card);
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
+
+select, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+}
+
+.total {
+  font-size: 22px;
+  color: var(--accent);
+  font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="header-content">
+    <h1>BuildMyPC</h1>
+    <button class="toggle" onclick="toggleTheme()">🌗</button>
+  </div>
+  <p>Simple PC Builder for Beginners</p>
+</header>
+
+<div class="container">
+
+<!-- Budget -->
+<div class="card">
+  <h2>Select Budget</h2>
+  <select id="budget" onchange="loadDefaultBuild()">
+    <option value="">-- Choose Budget --</option>
+    <option value="40000">₹40,000</option>
+    <option value="60000">₹60,000</option>
+    <option value="80000">₹80,000</option>
+  </select>
+</div>
+
+<!-- Default Build -->
+<div class="card">
+  <h2>Recommended Build (Default)</h2>
+  <p id="defaultBuild">Choose a budget to see recommendation</p>
+</div>
+
+<!-- Custom Build -->
+<div class="card">
+  <h2>Customize (Optional)</h2>
+
+  <label>CPU</label>
+  <select id="cpu" onchange="calculateTotal()">
+    <option value="8000">Intel i3 – ₹8,000</option>
+    <option value="12000">Ryzen 5 – ₹12,000</option>
+    <option value="18000">Intel i5 – ₹18,000</option>
+  </select>
+
+  <label>GPU</label>
+  <select id="gpu" onchange="calculateTotal()">
+    <option value="0">Integrated – ₹0</option>
+    <option value="15000">GTX 1650 – ₹15,000</option>
+    <option value="25000">RTX 3060 – ₹25,000</option>
+  </select>
+
+  <label>RAM</label>
+  <select id="ram" onchange="calculateTotal()">
+    <option value="3000">8GB – ₹3,000</option>
+    <option value="6000">16GB – ₹6,000</option>
+    <option value="10000">32GB – ₹10,000</option>
+  </select>
+
+  <label>Storage</label>
+  <select id="storage" onchange="calculateTotal()">
+    <option value="3000">256GB SSD – ₹3,000</option>
+    <option value="5000">512GB SSD – ₹5,000</option>
+    <option value="9000">1TB SSD – ₹9,000</option>
+  </select>
+
+  <label>PSU + Case</label>
+  <select id="psu" onchange="calculateTotal()">
+    <option value="4000">Standard – ₹4,000</option>
+    <option value="7000">Premium – ₹7,000</option>
+  </select>
+</div>
+
+<!-- Total -->
+<div class="card">
+  <h2>Total Price</h2>
+  <p class="total">₹<span id="total">0</span></p>
+  <button onclick="saveBuild()">Save Build</button>
+</div>
+
+</div>
+
+<script>
+function toggleTheme() {
+  document.body.classList.toggle("light");
+  localStorage.setItem("theme", document.body.className);
+}
+
+if (localStorage.getItem("theme")) {
+  document.body.className = localStorage.getItem("theme");
+}
+
+function loadDefaultBuild() {
+  const budget = document.getElementById("budget").value;
+  let text = "";
+
+  if (budget == 40000) {
+    text = "Intel i3 | 8GB RAM | 256GB SSD | Integrated Graphics";
+    setDefaults(8000,0,3000,3000,4000);
+  }
+  if (budget == 60000) {
+    text = "Ryzen 5 | 16GB RAM | 512GB SSD | GTX 1650";
+    setDefaults(12000,15000,6000,5000,4000);
+  }
+  if (budget == 80000) {
+    text = "Intel i5 | 16GB RAM | 1TB SSD | RTX 3060";
+    setDefaults(18000,25000,6000,9000,7000);
+  }
+
+  document.getElementById("defaultBuild").innerText = text;
+  calculateTotal();
+}
+
+function setDefaults(cpu,gpu,ram,storage,psu){
+  document.getElementById("cpu").value = cpu;
+  document.getElementById("gpu").value = gpu;
+  document.getElementById("ram").value = ram;
+  document.getElementById("storage").value = storage;
+  document.getElementById("psu").value = psu;
+}
+
+function calculateTotal() {
+  let total =
+    +cpu.value +
+    +gpu.value +
+    +ram.value +
+    +storage.value +
+    +psu.value;
+
+  document.getElementById("total").innerText = total;
+}
+
+function saveBuild() {
+  const build = {
+    cpu: cpu.value,
+    gpu: gpu.value,
+    ram: ram.value,
+    storage: storage.value,
+    psu: psu.value
+  };
+  localStorage.setItem("build", JSON.stringify(build));
+  alert("Build Saved!");
+}
+
+const saved = JSON.parse(localStorage.getItem("build"));
+if (saved) {
+  cpu.value = saved.cpu;
+  gpu.value = saved.gpu;
+  ram.value = saved.ram;
+  storage.value = saved.storage;
+  psu.value = saved.psu;
+  calculateTotal();
+}
+</script>
+
+</body>
+</html>
