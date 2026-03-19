@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: neon-build
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && node seed.js
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        generateValue: false
+        value: 10000
+    disk:
+      name: neon-db
+      mountPath: /data
+      sizeGB: 1
